@@ -48,7 +48,7 @@ po = np.poly1d(weight)          # 产生一个参数为weight的多项式
 new_x = np.linspace(0, 1, 1e4)
 plt.plot(new_x, po(new_x), '-r', label='Poly Fitting Line(degree=9, lnR=e-18)', linewidth=2)
 # 绘制图例说明,图例显示在图表的上方
-plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.03), fancybox=True, ncol=3)
+plt.legend(loc='lower center', bbox_to_anchor=(0.5, .95), fancybox=True, ncol=3)
 # 绘制后保存图
 plt.show()
 fig.savefig('poly_degree_9.png')
