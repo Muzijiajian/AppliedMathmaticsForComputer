@@ -1,5 +1,8 @@
 #encoding=utf-8
 
+__author__ = 'Dejian,Li 11521046'
+__date__ = '$2016-3-18$'
+
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
@@ -20,6 +23,7 @@ def curve_fit_weight(train_data, train_label, degree, reg=0):
         data[i, :] = value
     # Using normal equations
     weights = LA.inv(data*data.T + reg*np.eye(degree+1)) * data * np.matrix(train_label).T
+        #print np.size(weights)
     return weights.A1
 
 numpoints = 9   #数据点的个数
