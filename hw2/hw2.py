@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-def prepare_data(fname):
+def prepare_data(fname, chooseDigit):
     '''
     读取http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits
     网站的数据,使用的是已处理的版本,其数据格式为
@@ -18,7 +18,6 @@ def prepare_data(fname):
     :param fname: 需要读取的文件名字
     :return: 整个数据集,samples & labels
     '''
-
     samples = []
     labels = []
     i = 0
@@ -27,11 +26,12 @@ def prepare_data(fname):
     except:
         print 'Something wrong happened, file can not be opened.\n'
     for line in handle:
-        tmplist = line.rstrip().split(',')
+        tmplist = map(int, line.rstrip().split(','))
         # line = line.split(',')
-        labels.append(tmplist[-1])
-        tmplist = tmplist[:-1]
-        samples.append(tmplist)
+        if tmplist[-1] == chooseDigit:
+        # labels.append(tmplist[-1])
+            tmplist = tmplist[:-1]
+            samples.append(tmplist)
         # i = i+1
         # print labels
         # print samples
@@ -40,26 +40,27 @@ def prepare_data(fname):
         #     print type(samples)
         #     break
     # 将生成的list转变成numpy array
-    samples = np.asarray(samples).T
-    labels = np.asarray(labels).T
+    samples = np.mat(samples).T
+    labels = np.mat(labels).T
         # print type(labels)
         # print np.shape(labels)
         # print np.shape(samples)
         # print labels
     return (samples, labels)
 
-def normalize(data):
+def normalize(dataMat):
     '''
     对向量模长进行归一化,这里采用的是Z-score的方法
     :param data: 输入需要归一化的向量
-    :return: 归一化后的向量
+    :return: 归一化后的向量, 其实就是减去向量的均值
     '''
     # 0 stands for do it in column, 1 stands for row
-    mu = np.mean(data.astype(np.float), axis=0)
+    EPSILON = 10e-4
+    mu = np.mean(dataMat, axis=1)
     print type(mu)
-    sigma = np.std(data.astype(np.float), axis=0)
-    print type(sigma)
-    norm_data = (data - mu) / sigma
+    sigma = np.std(dataMat, axis=1)
+    # print type(sigma)
+    norm_data = (dataMat - mu) / (sigma+EPSILON)
     return norm_data
 
 def my_pca(dataMat, topNfeat=999999):
@@ -69,18 +70,46 @@ def my_pca(dataMat, topNfeat=999999):
     :param topNfeat: 应用的n个特征向量
     :return: 降维后的数据集lowDataMat, eigVals & eigVecs
     '''
-    meanVals =np.mean(dataMat, axis=0)
-    meanRemoved = dataMat - meanVals
-    scatter_matrix = np.cov(meanRemoved, rowvar=0)
-    eigVals, eigVecs = np.linalg.eig(mat(scatter_matrix))
-    #
-    print eigVals[:,2]
-    print eigVecs[:,2]
+    scatter_matrix = dataMat * dataMat.T
+    print 'Type of scatter_matrix', type(scatter_matrix)
+    eigVals, eigVecs = np.linalg.eig(scatter_matrix)
+    # 将eigVals对角矩阵化回来
+    # eigVals = np.linalg.diag(eigVals)
+    print 'Shape of eigValues', np.shape(eigVals)
+    print 'Shape of eigVectors', np.shape(eigVecs)
+    print eigVals[0:topNfeat]
+    # print eigVecs[:, 1].T
+    return eigVals[0:topNfeat], eigVecs[:, 0:topNfeat]
 
+def plot_eigVecs(eigVecs):
+    '''
+    imshow函数表示绘制二维图像 cmap=plt.cm.gray(画布颜色定义为灰色)
+    :param eigVecs: 主成成分特征向量
+    :return: None
+    '''
+    figure1 = plt.figure(num=1)
+    plt.subplot(121)
+    plt.xlabel('First Component')
+    plt.title('$\lambda = %f$' % eigValus[0])
+    plt.imshow(eigVecs[:,0].reshape(8,8))
+    plt.subplot(122)
+    plt.title('$\lambda = %f$' % eigValus[1])
+    plt.xlabel('Second Component')
+    plt.imshow(eigVecs[:,1].reshape(8,8))
 
-(train_data, train_label) = prepare_data('optdigits.tra')
-# train_data = normalize(train_data)
-# print type(train_data)
-my_pca(train_data, topNfeat=2)
-(test_data, test_label) = prepare_data('optdigits.tes')
-print np.shape(train_data)
+(train_data, train_label) = prepare_data('optdigits.tra', chooseDigit=3)
+original_train_data = train_data
+train_data = normalize(train_data)
+# print 'One samples of training data', train_data[:, 0].T
+# print 'Labels', train_label[:].T
+print 'Type of training data', type(train_data)
+print 'Shape of training data', np.shape(train_data)
+print 'Type of training label', type(train_label)
+print 'Shape of training label', np.shape(train_label)
+(eigValus, eigVecs) = my_pca(train_data, topNfeat=2)
+# 绘制主成成分数字情形
+plot_eigVecs(eigVecs)
+# 绘制
+
+# (test_data, test_label) = prepare_data('optdigits.tes')
+plt.show()
