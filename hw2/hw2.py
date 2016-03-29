@@ -96,6 +96,48 @@ def plot_eigVecs(eigVecs):
     plt.title('$\lambda = %f$' % eigValus[1])
     plt.xlabel('Second Component')
     plt.imshow(eigVecs[:,1].reshape(8,8))
+def cal_newData(dataMat, components):
+    '''
+    计算经过主成成分特征向量进行缩放后的数据在新空间下的数值
+    :param dataMat: features*numCases
+    :param components: 主要成分的向量
+    :return: 新空间下的数据集, features*numCases
+    '''
+    newData = components.T * dataMat
+    print 'Shape of new Data', np.shape(newData)
+    return newData
+
+def plotData(dataMat):
+    '''
+    根据data数据集格式进行在二维坐标轴上进行可视化操作
+    :param dataMat: features*numCases
+    :return: None
+    '''
+    figure2 = plt.figure(num=2)
+    # print dataMat[1].size
+    # print dataMat[:, 388][1]
+    # 将数据集拆分为x,y两个ndarray进行可视化处理
+    xlist = []
+    ylist = []
+    for i in range(dataMat[0].size):
+        x = int(dataMat[:, i][0])
+        y = int(dataMat[:, i][1])
+        xlist.append(x)
+        ylist.append(y)
+
+    print 'Length of list x and list y', len(xlist), len(ylist)
+    # maxX = max(xlist)
+    # maxY = max(ylist)
+    # print 'Max of X and Y is', maxX, maxY
+    # xlist = np.array(xlist)
+    # ylist = np.array(ylist)
+    plt.plot(xlist, ylist, 'o', color='green')
+    plt.xlabel('First Component')
+    plt.ylabel('Second Component')
+    plt.xlim(-6, 8)
+    plt.ylim(-10, 10)
+    # 创建网格
+    plt.grid()
 
 (train_data, train_label) = prepare_data('optdigits.tra', chooseDigit=3)
 original_train_data = train_data
@@ -107,9 +149,12 @@ print 'Shape of training data', np.shape(train_data)
 print 'Type of training label', type(train_label)
 print 'Shape of training label', np.shape(train_label)
 (eigValus, eigVecs) = my_pca(train_data, topNfeat=2)
+# 计算经过主成成分提取后所形成的新数据集
+projData = cal_newData(train_data, eigVecs)
 # 绘制主成成分数字情形
 plot_eigVecs(eigVecs)
-# 绘制
+# 在坐标轴上绘制只是提取两个主要成分的数据
+plotData(projData)
 
 # (test_data, test_label) = prepare_data('optdigits.tes')
 plt.show()
