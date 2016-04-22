@@ -6,6 +6,7 @@ __date__ = '$2016-3-19$'
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm  #用于显示灰度图像
 import sys
 
 def prepare_data(fname, chooseDigit):
@@ -90,22 +91,26 @@ def plot_eigVecs(eigVecs):
     figure1 = plt.figure(num=1)
     plt.subplot(121)
     plt.xlabel('First Component')
-    plt.title('$\lambda = %f$' % eigValus[0])
-    plt.imshow(eigVecs[:,0].reshape(8,8))
+    plt.title('$\lambda = %f$' % eigValues[0])
+    plt.imshow(eigVecs[:,0].reshape(8,8), cmap=cm.gray)
     plt.subplot(122)
-    plt.title('$\lambda = %f$' % eigValus[1])
+    plt.title('$\lambda = %f$' % eigValues[1])
     plt.xlabel('Second Component')
-    plt.imshow(eigVecs[:,1].reshape(8,8))
-def cal_newData(dataMat, components):
+    plt.imshow(eigVecs[:,1].reshape(8,8), cmap=cm.gray)
+def rotate_Data(dataMat, eigVecs):
     '''
     计算经过主成成分特征向量进行缩放后的数据在新空间下的数值
     :param dataMat: features*numCases
-    :param components: 主要成分的向量
+    :param eigValues: 主要成分的特征值
+    :param eigVecs: 主要成分的特征向量
     :return: 新空间下的数据集, features*numCases
     '''
-    newData = components.T * dataMat
-    print 'Shape of new Data', np.shape(newData)
-    return newData
+    xRot = eigVecs.T * dataMat
+    # newData = eigVecs * eigVecs.T * dataMat
+    # print newData
+    print 'Shape of rotate data', np.shape(xRot)
+    print 'Type of rotate data', type(xRot)
+    return xRot
 
 def plotData(dataMat):
     '''
@@ -120,37 +125,38 @@ def plotData(dataMat):
     xlist = []
     ylist = []
     for i in range(dataMat[0].size):
-        x = int(dataMat[:, i][0])
-        y = int(dataMat[:, i][1])
+        x = int(dataMat[:, i][0]) / 5
+        y = int(dataMat[:, i][1]) / 5
         xlist.append(x)
         ylist.append(y)
 
     print 'Length of list x and list y', len(xlist), len(ylist)
-    # maxX = max(xlist)
-    # maxY = max(ylist)
+    maxX = max(xlist)
+    maxY = max(ylist)
     # print 'Max of X and Y is', maxX, maxY
-    # xlist = np.array(xlist)
-    # ylist = np.array(ylist)
+    xlist = np.array(xlist)   # 这里因为数据点过于分散,因此同时进行缩放
+    ylist = np.array(ylist)
     plt.plot(xlist, ylist, 'o', color='green')
     plt.xlabel('First Component')
     plt.ylabel('Second Component')
-    plt.xlim(-6, 8)
-    plt.ylim(-10, 10)
+    plt.xlim(-6, 6)
+    plt.ylim(-8, 8)
     # 创建网格
     plt.grid()
 
 (train_data, train_label) = prepare_data('optdigits.tra', chooseDigit=3)
 original_train_data = train_data
-train_data = normalize(train_data)
+norm_data = normalize(train_data)
 # print 'One samples of training data', train_data[:, 0].T
 # print 'Labels', train_label[:].T
-print 'Type of training data', type(train_data)
-print 'Shape of training data', np.shape(train_data)
+print 'Type of training data', type(norm_data)
+print 'Shape of training data', np.shape(norm_data)
 print 'Type of training label', type(train_label)
 print 'Shape of training label', np.shape(train_label)
-(eigValus, eigVecs) = my_pca(train_data, topNfeat=2)
+# print original_train_data
+(eigValues, eigVecs) = my_pca(norm_data, topNfeat=2)
 # 计算经过主成成分提取后所形成的新数据集
-projData = cal_newData(train_data, eigVecs)
+projData = rotate_Data(train_data, eigVecs)
 # 绘制主成成分数字情形
 plot_eigVecs(eigVecs)
 # 在坐标轴上绘制只是提取两个主要成分的数据
