@@ -2,8 +2,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
+def gmm(X, K_or_centroids):
+    '''
+    Expectation Maximization iteration implementation of Gaussian Mixture Model
+    :param X: input data, N-by-D data array
+    :param K_or_centroids: either K indicating the number of components or a K-by-D matrix indicating the
+                           choosing of the initial K centroids.
+    :return:
+    '''
+    
 
 totalPoints = 400
 weights = [0.25, 0.25, 0.5]
@@ -28,3 +35,6 @@ plt.legend(loc='lower center', bbox_to_anchor=(0.5, -.15), fancybox=True, ncol=3
 plt.show()
 # fig1.savefig("Original data distribution")
 mixed_data = data1.T.tolist() + data2.T.tolist() + data3.T.tolist()
+mixed_data = np.array(mixed_data)
+# fig2 = plt.figure(num=2)
+# plt.plot(mixed_data[:,0], mixed_data[:,1], 'o')
