@@ -1,0 +1,38 @@
+#net: "/home/lord/caffe-master/ldj_workspace/caltech101/train_val.prototxt"
+net: "/home/lord/caffe-master/ldj_workspace/caltech101/see.prototxt"
+#net: "/home/lord/caffe-master/ldj_workspace/caltech101/wahaha.prototxt"
+test_iter: 100		# test_iter*batchsize 至少要大于等于测试图片数量的总数
+test_interval: 1000
+# lr for fine-tuning should be lower than when starting from scratch
+#base_lr: 1e-3			# 初始化的学习率
+base_lr:  3e-6			# 开始调参的学习率
+#lr_policy: "fixed"
+
+#lr_policy: "step" # learning rate policy: drop the learning rate in "steps"
+                  # by a factor of gamma every stepsize iterations
+
+gamma: 0.1        # drop the learning rate by a factor of 10
+                  # (i.e., multiply it by a factor of gamma = 0.1)
+
+#step_size: 15000  # drop the learning rate every 100K iterations
+lr_policy: "multistep"
+#stepvalue: 2500
+#stepvalue: 5000
+#stepvalue: 8000
+stepvalue: 3000
+#stepvalue: 5000
+stepvalue: 8000
+stepvalue: 12000
+stepvalue: 16000
+momentum: 0.9
+momentum2: 0.995
+delta: 1e-8
+weight_decay: 0.0002
+display: 100
+max_iter: 20001
+snapshot: 5000
+#snapshot_prefix: "ldj_workspace/caltech101/deepnet/see"
+snapshot_prefix: "ldj_workspace/caltech101/deepnet/fine_tuning/deepf3"
+# uncomment the following to default to CPU mode solving
+type: "Adam"
+solver_mode: GPU
