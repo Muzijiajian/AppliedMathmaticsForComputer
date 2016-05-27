@@ -1,5 +1,5 @@
 #encoding=utf-8
-
+# 这是一个Python入门熟悉
 def quicksort(arr):
     if len(arr) <= 1:
         return arr
